@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link EnumNormalizer}.
  * Covers title case conversion with/without spaces, null/empty handling, and edge cases.
+ * @date 27/08/2026
  */
 @DisplayName("EnumNormalizer Tests")
 class EnumNormalizerTest {

@@ -1,16 +1,13 @@
 package es.NTTEnterprise.RIntellix.ms_risk_engine.application.usecases;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-
-
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.RiskMetricsCalculationContextMapper;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.SimulationModelPayloadMapper;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.usecases.RiskMetricsCalculationService;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.ModelEndpointResolver;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.ScoringModelExecutionStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.ModelEndpointResolver;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.ScoringModelExecutionStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.RiskMetrics;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.Scoring;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.simulation.FormChanges;
@@ -52,6 +49,7 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
         private final RiskIndicatorCalculationService riskIndicatorCalculationService;
         private final SimulationModelPayloadMapper simulationPayloadMapper;
         private final SimulationDeltaCalculator simulationDeltaCalculator;
+        private final RiskMetricsCalculationContextMapper contextMapper;
 
         /**
          * Constructor of the CalculateSimulationDraftUseCase class.
@@ -69,6 +67,9 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
          * @param simulationPayloadMapper         mapper for transforming simulation
          *                                        variables to model payload using
          *                                        canonical model field names.
+         * @param simulationDeltaCalculator       calculator for simulation delta.
+         * @param contextMapper                   mapper for building the calculation
+         *                                        context.
          */
         public CalculateSimulationDraftUseCase(
                         final FetchScoringPort fetchScoringPort,
@@ -76,13 +77,15 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
                         final RiskMetricsCalculationService metricsCalculationService,
                         final RiskIndicatorCalculationService riskIndicatorCalculationService,
                         final SimulationModelPayloadMapper simulationPayloadMapper,
-                        final SimulationDeltaCalculator simulationDeltaCalculator) {
+                        final SimulationDeltaCalculator simulationDeltaCalculator,
+                        final RiskMetricsCalculationContextMapper contextMapper) {
                 this.fetchScoringPort = Objects.requireNonNull(fetchScoringPort);
                 this.scoringModelExecutionStrategies = Objects.requireNonNull(scoringModelExecutionStrategies);
                 this.metricsCalculationService = Objects.requireNonNull(metricsCalculationService);
                 this.riskIndicatorCalculationService = Objects.requireNonNull(riskIndicatorCalculationService);
                 this.simulationPayloadMapper = Objects.requireNonNull(simulationPayloadMapper);
                 this.simulationDeltaCalculator = Objects.requireNonNull(simulationDeltaCalculator);
+                this.contextMapper = Objects.requireNonNull(contextMapper);
         }
 
         /**
@@ -120,8 +123,7 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
 
                 log.info(LogMessage.SIMULATION_BASE_SCORING_RETRIEVED, requestId, baseScoring.toString());
 
-                // 2. Extract base variables for delta calculation & merge
-                final Map<String, Object> baseVariables = extractBaseVariables(baseScoring);
+                // 2. Merge form changes with base scoring for calculation
 
                 final Map<String, Object> mergedVariables = mergeData(baseScoring, formChanges, requestType);
 
@@ -131,11 +133,13 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
                                 mergedVariables, requestType, baseScoring.getInputSnapshot());
 
                 // Assign all values to model input class.
-                final RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
+                final RiskMetricsCalculationContext context = contextMapper.buildContext(
+                                baseScoring,
+                                formChanges,
+                                requestType,
                                 mergedVariables,
-                                requestId,
                                 resolveModelEndpointPath(requestType),
-                                requestType);
+                                requestId);
 
                 // Reuse scoring calculation service to call model and calculate riskMetrics
                 // based on strategy.
@@ -143,25 +147,9 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
                 final RiskMetrics simulatedMetrics = result.riskMetrics();
 
                 // Calculate delta between base and simulated metrics
-                final SimulationDelta delta = simulationDeltaCalculator.calculateDelta(baseScoring, simulatedMetrics,
-                                baseVariables,
-                                mergedVariables);
+                final SimulationDelta delta = simulationDeltaCalculator.calculateDelta(baseScoring, simulatedMetrics);
 
                 return new SimulationDraft(formChanges, simulatedMetrics, delta);
-        }
-
-        /**
-         * Extracts base variables from the scoring input snapshot for delta
-         * calculation.
-         * 
-         * @param baseScoring the base scoring containing input features.
-         * @return a Map with base variable values.
-         */
-        private Map<String, Object> extractBaseVariables(final Scoring baseScoring) {
-                final Map<String, Object> baseVariables = baseScoring.getInputSnapshot() != null
-                                ? new HashMap<>(baseScoring.getInputSnapshot())
-                                : new HashMap<>();
-                return baseVariables;
         }
 
         /**
@@ -198,7 +186,8 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
          *         names, ready for model
          *         invocation without further transformation.
          */
-        private Map<String, Object> mergeData(final Scoring baseScoring, final FormChanges formChanges, final String requestType) {
+        private Map<String, Object> mergeData(final Scoring baseScoring, final FormChanges formChanges,
+                        final String requestType) {
                 final Map<String, Object> baseInputs = baseScoring.getInputSnapshot();
                 if (baseInputs == null || baseInputs.isEmpty()) {
                         throw new ScoringNotFoundException(String.format(
@@ -206,19 +195,17 @@ public class CalculateSimulationDraftUseCase implements SimulationDraftPortServi
                                         baseScoring.getRequestId()));
                 }
 
-                // Normalize scoring variables from snakeCase to camelCase
+                // Normalize scoring variables (e.g., booleans, enums, fractions)
                 final Map<String, Object> normalizedBase = simulationPayloadMapper
-                                .normalizeBaseVariables(baseInputs, requestType);
+                                .normalizeVariables(baseInputs);
 
-                // Normalize formChanges values, convert them into camelCase and convert boolean
-                // into yes/no values.
+                // Normalize formChanges values (e.g., booleans, enums, fractions)
                 final Map<String, Object> normalizedFormChanges = simulationPayloadMapper
-                                .normalizeFormChangesToCamelcase(formChanges.getValues(), requestType);
+                                .normalizeVariables(formChanges.getValues());
 
                 // Override with normalized form changes
                 normalizedBase.putAll(normalizedFormChanges);
 
                 return normalizedBase;
         }
-
 }

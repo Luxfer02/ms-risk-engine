@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /**
  * Unit tests for {@link ModelPayloadUtilities}.
  * Covers delegation to EnumNormalizer/BooleanConverter, auto-detection logic, and interest rate normalization.
+ * @date 27/08/2026
  */
 @DisplayName("ModelPayloadUtilities Tests")
 @ExtendWith(MockitoExtension.class)

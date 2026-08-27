@@ -19,6 +19,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.Scoring;
 /**
  * Unit tests for {@link ScoringResultMessageDTOMapper}.
  * Covers mapping from Scoring domain entity to output DTO.
+ * @date 27/08/2026
  */
 @DisplayName("ScoringResultMessageDTOMapper Tests")
 class ScoringResultMessageDTOMapperTest {

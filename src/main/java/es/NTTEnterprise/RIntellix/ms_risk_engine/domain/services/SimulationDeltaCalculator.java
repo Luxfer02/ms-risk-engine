@@ -1,7 +1,5 @@
 package es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services;
 
-import java.util.Map;
-
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.FinancialMetrics;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.RiskMetrics;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.Scoring;
@@ -17,6 +15,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.MathUtilities;
  * testability.
  *
  * @author Lucía Fernández Mancebo
+ * @date 27/08/2026
  */
 public class SimulationDeltaCalculator {
 
@@ -31,15 +30,11 @@ public class SimulationDeltaCalculator {
          * 
          * @param baseScoring      the original scoring object with base metrics.
          * @param simulatedMetrics the new metrics from simulation.
-         * @param baseVariables    the original feature values.
-         * @param mergedVariables  the merged feature values (includes form changes).
          * @return the SimulationDelta with all calculated changes.
          */
         public SimulationDelta calculateDelta(
                         final Scoring baseScoring,
-                        final RiskMetrics simulatedMetrics,
-                        final Map<String, Object> baseVariables,
-                        final Map<String, Object> mergedVariables) {
+                        final RiskMetrics simulatedMetrics) {
 
                 // Extract base financial metrics from the scoring
                 final RiskMetrics baseMetrics = baseScoring.getResults();

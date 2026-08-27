@@ -19,6 +19,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.simulation.Simu
 /**
  * Unit tests for {@link SimulationDraftMapper}.
  * Covers domain/DTO mapping for requests and responses.
+ * @date 27/08/2026
  */
 @DisplayName("SimulationDraftMapper Tests")
 class SimulationDraftMapperTest {

@@ -54,4 +54,14 @@ public final class MathUtilities {
     public static double calculateDelta(final double simValue, final double baseValue) {
         return roundFinal(simValue - baseValue);
     }
+
+    /**
+     * Converts a percentage value (e.g., 18.0) to a decimal fraction (e.g., 0.18).
+     * 
+     * @param percentage the percentage value
+     * @return the decimal fraction
+     */
+    public static double percentageToFraction(final double percentage) {
+        return percentage / SimulationConstants.PERCENTAGE_DIVISOR;
+    }
 }

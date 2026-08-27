@@ -1,6 +1,6 @@
 package es.NTTEnterprise.RIntellix.ms_risk_engine.infrastructure.config;
 
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class KafkaConsumerConfig {
 
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
-                JsonDeserializer.class.getName());
+                JacksonJsonDeserializer.class.getName());
         configProps.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class.getName());
         configProps.put("spring.json.value.default.type", Object.class.getName());
         configProps.put("spring.json.trusted.packages", TRUSTED_PACKAGES_ALL);

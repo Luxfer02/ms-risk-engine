@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link LoanPaymentCalculator}.
  * Covers French amortization formula, edge cases, and input validation.
+ * @date 27/08/2026
  */
 @DisplayName("LoanPaymentCalculator Tests")
 class LoanPaymentCalculatorTest {

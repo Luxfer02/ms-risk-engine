@@ -5,16 +5,15 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.constants.RiskCalculationDefaults;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RiskCalculationStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.LoanRiskCalculationStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.MortgageRiskCalculationStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RevolvingCreditCardRiskCalculationStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.StandardCreditCardRiskCalculationStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.FinancialMetricsStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.LoanFinancialMetricsStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.StandardCreditCardFinancialMetricsStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RevolvingCreditCardFinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.LoanRiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.MortgageRiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RevolvingCreditCardRiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.StandardCreditCardRiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.FinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.LoanFinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.StandardCreditCardFinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.RevolvingCreditCardFinancialMetricsStrategy;
 
 /**
  * Infrastructure configuration that registers domain risk calculation

@@ -63,12 +63,13 @@ public class SimulationDraftController {
             @ApiResponse(responseCode = "400", description = "Invalid input data or validation error")
     })
     public ResponseEntity<SimulationDraftResponseDTO> calculateDraft(
-            @Parameter(description = "The request payload containing form changes to apply", required = true)
-            @Valid @RequestBody final CalculateSimulationDraftRequestDTO request) {
+            @Parameter(description = "The request payload containing form changes to apply", required = true) @Valid @RequestBody final CalculateSimulationDraftRequestDTO request) {
         log.info(LogMessage.SIMULATIONDRAFT_PETITION_RECEIVED, request.getRequestId(), request.getRequestType());
+
         final SimulationDraft draft = calculateSimulationDraftUseCase.calculateDraft(
                 request.getRequestId(), request.getRequestType(),
                 simulationDraftMapper.toFormChanges(request));
+
         return ResponseEntity.ok(simulationDraftMapper.toApiResponse(draft));
     }
 }

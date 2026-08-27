@@ -13,6 +13,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.application.dtos.input.ScoringG
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.ports.input.ScoringProcessingPortService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.infrastructure.adapters.input.kafka.strategy.ScoringGenerationMessageStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.infrastructure.mappers.ScoringKafkaRequestMapper;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.infrastructure.adapters.input.kafka.factories.ScoringKafkaMessageStrategyFactory;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,8 +87,6 @@ public class ScoringKafkaConsumer {
 
     }
 
-    // TODO: Tocheck if we need to extract this into a factory like its done in
-    // other sides of the code.
     /**
      * Auxiliar method that extracts the real message received by kafka
      * queue by converting all the message content in different
@@ -100,13 +99,7 @@ public class ScoringKafkaConsumer {
             throw new IllegalArgumentException(LogMessage.REQUEST_TYPE_IS_REQUIRED);
         }
 
-        for (ScoringGenerationMessageStrategy strategy : strategies) {
-            if (strategy.supports(requestType)) {
-                return strategy.map(message);
-            }
-        }
-
-        throw new IllegalArgumentException(String.format(LogMessage.REQUEST_TYPE_NOT_FOUND, requestType));
-
+        ScoringGenerationMessageStrategy strategy = ScoringKafkaMessageStrategyFactory.selectStrategy(requestType, strategies);
+        return strategy.map(message);
     }
 }

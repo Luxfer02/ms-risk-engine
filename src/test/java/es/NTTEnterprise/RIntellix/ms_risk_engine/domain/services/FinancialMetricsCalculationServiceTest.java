@@ -14,12 +14,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.FinancialMetrics;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.FinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.FinancialMetricsStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 
 /**
  * Unit tests for {@link FinancialMetricsCalculationService}.
  * Covers delegation to strategy for both methods.
+ * @date 27/08/2026
  */
 @DisplayName("FinancialMetricsCalculationService Tests")
 @ExtendWith(MockitoExtension.class)

@@ -13,6 +13,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.exceptions.InvalidFormCh
 /**
  * Unit tests for {@link MapUtilities}.
  * Covers getDouble and getBoolean with various types, null handling, and edge cases.
+ * @date 27/08/2026
  */
 @DisplayName("MapUtilities Tests")
 class MapUtilitiesTest {

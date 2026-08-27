@@ -17,6 +17,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.Scoring;
 /**
  * Unit tests for {@link ScoringResultMapper}.
  * Covers mapping to Scoring entity and resolving SHAP features from snapshot.
+ * @date 27/08/2026
  */
 @DisplayName("ScoringResultMapper Tests")
 class ScoringResultMapperTest {

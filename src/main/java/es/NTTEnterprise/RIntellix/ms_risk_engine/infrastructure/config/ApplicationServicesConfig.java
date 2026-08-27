@@ -13,9 +13,9 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.ScoringResu
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.SimulationModelPayloadMapper;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.ports.input.SimulationDraftPortService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.ports.input.ScoringProcessingPortService;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.CreditCardScoringModelExecutionStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.LoanOrMortgageScoringModelExecutionStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.ScoringModelExecutionStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.CreditCardScoringModelExecutionStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.LoanOrMortgageScoringModelExecutionStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.ScoringModelExecutionStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.usecases.CalculateSimulationDraftUseCase;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.usecases.RiskMetricsCalculationService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.usecases.ScoringProcessingService;
@@ -27,10 +27,9 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.HardCutoffRuleE
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskGradeCalculator;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskIndicatorCalculationService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.SimulationDeltaCalculator;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RiskCalculationStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadUtilities;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.DtiCalculationService;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.NamingConverter;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.EnumNormalizer;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.BooleanConverter;
 
@@ -65,25 +64,20 @@ public class ApplicationServicesConfig {
         return new ModelPayloadUtilities(enumNormalizer, booleanConverter);
     }
 
-    @Bean
-    public NamingConverter namingConverter() {
-        return new NamingConverter();
-    }
+
 
     // --- Mappers ---
 
     @Bean
     public CreditCardModelPayloadMapper creditCardModelPayloadMapper(
-            ModelPayloadUtilities modelPayloadUtilities,
-            DtiCalculationService dtiCalculationService) {
-        return new CreditCardModelPayloadMapper(modelPayloadUtilities, dtiCalculationService);
+            ModelPayloadUtilities modelPayloadUtilities) {
+        return new CreditCardModelPayloadMapper(modelPayloadUtilities);
     }
 
     @Bean
     public LoanOrMortgageModelPayloadMapper loanOrMortgageModelPayloadMapper(
-            ModelPayloadUtilities modelPayloadUtilities,
-            DtiCalculationService dtiCalculationService) {
-        return new LoanOrMortgageModelPayloadMapper(modelPayloadUtilities, dtiCalculationService);
+            ModelPayloadUtilities modelPayloadUtilities) {
+        return new LoanOrMortgageModelPayloadMapper(modelPayloadUtilities);
     }
 
     @Bean
@@ -98,9 +92,8 @@ public class ApplicationServicesConfig {
 
     @Bean
     public SimulationModelPayloadMapper simulationModelPayloadMapper(
-            ModelPayloadUtilities modelPayloadUtilities,
-            NamingConverter namingConverter) {
-        return new SimulationModelPayloadMapper(modelPayloadUtilities, namingConverter);
+            ModelPayloadUtilities modelPayloadUtilities) {
+        return new SimulationModelPayloadMapper(modelPayloadUtilities);
     }
 
     // --- Use Cases & Strategies ---
@@ -120,18 +113,20 @@ public class ApplicationServicesConfig {
     public LoanOrMortgageScoringModelExecutionStrategy loanOrMortgageScoringModelExecutionStrategy(
             LoanOrMortgageModelPayloadMapper loanOrMortgageModelPayloadMapper,
             RiskMetricsCalculationService riskMetricsCalculationService,
+            DtiCalculationService dtiCalculationService,
             @Value("${risk.model.predict-loan-path:/api/v1/risk/predict-loan}") String predictLoanPath) {
         return new LoanOrMortgageScoringModelExecutionStrategy(loanOrMortgageModelPayloadMapper,
-                riskMetricsCalculationService, predictLoanPath);
+                riskMetricsCalculationService, dtiCalculationService, predictLoanPath);
     }
 
     @Bean
     public CreditCardScoringModelExecutionStrategy creditCardScoringModelExecutionStrategy(
             CreditCardModelPayloadMapper creditCardModelPayloadMapper,
             RiskMetricsCalculationService riskMetricsCalculationService,
+            DtiCalculationService dtiCalculationService,
             @Value("${risk.model.predict-credit-card-path:/api/v1/risk/predict-credit-card}") String predictCreditCardPath) {
         return new CreditCardScoringModelExecutionStrategy(creditCardModelPayloadMapper, riskMetricsCalculationService,
-                predictCreditCardPath);
+                dtiCalculationService, predictCreditCardPath);
     }
 
     @Bean
@@ -151,13 +146,15 @@ public class ApplicationServicesConfig {
             RiskMetricsCalculationService riskMetricsCalculationService,
             RiskIndicatorCalculationService riskIndicatorCalculationService,
             SimulationModelPayloadMapper simulationModelPayloadMapper,
-            SimulationDeltaCalculator simulationDeltaCalculator) {
+            SimulationDeltaCalculator simulationDeltaCalculator,
+            es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.RiskMetricsCalculationContextMapper contextMapper) {
         return new CalculateSimulationDraftUseCase(
                 fetchScoringPort,
                 scoringModelExecutionStrategies,
                 riskMetricsCalculationService,
                 riskIndicatorCalculationService,
                 simulationModelPayloadMapper,
-                simulationDeltaCalculator);
+                simulationDeltaCalculator,
+                contextMapper);
     }
 }

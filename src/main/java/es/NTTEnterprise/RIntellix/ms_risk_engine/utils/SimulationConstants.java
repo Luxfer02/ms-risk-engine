@@ -1,5 +1,7 @@
 package es.NTTEnterprise.RIntellix.ms_risk_engine.utils;
 
+import java.util.Map;
+
 /**
  * Centralized constants for simulation draft calculations.
  *
@@ -30,4 +32,19 @@ public final class SimulationConstants {
     public static double getSafe(final Double value) {
         return value == null ? ZERO_VALUE : value;
     }
+
+    /**
+     * Defines the deterministic relationship between employment status
+     * and income type, as learned by the credit card model from training data.
+     * 
+     * When employmentStatus changes in a simulation, incomeType MUST be
+     * synchronized to maintain data coherence with the model's training domain.
+     */
+    public static final java.util.Map<String, String> EMPLOYMENT_TO_INCOME_TYPE = Map.of(
+            "Indefinido", "Salario",
+            "Temporal", "Salario",
+            "Funcionario", "Salario",
+            "Autonomo", "Autonomo",
+            "Desempleado", "Ayudas",
+            "Inactivo", "Pension");
 }

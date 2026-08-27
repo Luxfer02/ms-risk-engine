@@ -1,7 +1,6 @@
 package es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Map;
@@ -14,14 +13,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.dtos.input.CreditCardScoringGenerationRequest;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.DtiCalculationService;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadFieldNames;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadUtilities;
 
 /**
  * Unit tests for {@link CreditCardModelPayloadMapper}.
- * Covers mapping from CreditCardScoringGenerationRequest to Model Payload with mocked utilities.
+ * Covers mapping from CreditCardScoringGenerationRequest to Model Payload with
+ * mocked utilities.
+ * @date 27/08/2026
  */
 @DisplayName("CreditCardModelPayloadMapper Tests")
 @ExtendWith(MockitoExtension.class)
@@ -30,14 +29,11 @@ class CreditCardModelPayloadMapperTest {
     @Mock
     private ModelPayloadUtilities payloadUtilities;
 
-    @Mock
-    private DtiCalculationService dtiCalculationService;
-
     private CreditCardModelPayloadMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = new CreditCardModelPayloadMapper(payloadUtilities, dtiCalculationService);
+        mapper = new CreditCardModelPayloadMapper(payloadUtilities);
     }
 
     @Test
@@ -55,10 +51,8 @@ class CreditCardModelPayloadMapperTest {
         when(payloadUtilities.normalizeEnumForField(ModelPayloadFieldNames.FIELD_GENDER, "HOMBRE"))
                 .thenReturn("Hombre");
         when(payloadUtilities.normalizeInterestRateToFraction(20.0)).thenReturn(0.20);
-        when(dtiCalculationService.calculateModelDtiForCreditCardScoring(50000.0, 1200.0, 5000.0, true))
-                .thenReturn(0.15);
 
-        Map<String, Object> result = mapper.toModelPayload(request, "TARJETA_CREDITO");
+        Map<String, Object> result = mapper.toModelPayload(request, "TARJETA_CREDITO", 0.15);
 
         assertNotNull(result);
         assertEquals(30, result.get(ModelPayloadFieldNames.FIELD_AGE));
@@ -70,25 +64,21 @@ class CreditCardModelPayloadMapperTest {
 
         verify(payloadUtilities).normalizeEnumForField(ModelPayloadFieldNames.FIELD_GENDER, "HOMBRE");
         verify(payloadUtilities).normalizeInterestRateToFraction(20.0);
-        verify(dtiCalculationService).calculateModelDtiForCreditCardScoring(50000.0, 1200.0, 5000.0, true);
     }
 
     @Test
     @DisplayName("Should return 0 for DTI when request is null")
     void calculateModelDti_withNullRequest() {
-        // We can't directly test calculateModelDti since it's private and called from toModelPayload
-        // But if we pass a null request to toModelPayload, it will throw NPE before reaching it.
-        // So let's test constructor validation instead.
-        assertThrows(NullPointerException.class, () -> new CreditCardModelPayloadMapper(null, dtiCalculationService));
-        assertThrows(NullPointerException.class, () -> new CreditCardModelPayloadMapper(payloadUtilities, null));
+        assertThrows(NullPointerException.class, () -> new CreditCardModelPayloadMapper(null));
     }
 
     @Test
     @DisplayName("Should handle entirely null input request safely (throws NPE due to logic)")
     void shouldHandleNullRequest() {
-        // In a real application, controller validations prevent this. But we can test it throws NPE or handles it.
+        // In a real application, controller validations prevent this. But we can test
+        // it throws NPE or handles it.
         org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class, () -> {
-            mapper.toModelPayload(null, "TARJETA_CREDITO");
+            mapper.toModelPayload(null, "TARJETA_CREDITO", 0.0);
         });
     }
 
@@ -102,11 +92,9 @@ class CreditCardModelPayloadMapperTest {
         // missing all demographic/employment data, etc.
 
         when(payloadUtilities.normalizeInterestRateToFraction(20.0)).thenReturn(0.20);
-        when(dtiCalculationService.calculateModelDtiForCreditCardScoring(eq(0.0), eq(0.0), eq(5000.0), anyBoolean()))
-                .thenReturn(0.0); // Assume service handles missing parts and returns 0
 
-        Map<String, Object> payload = mapper.toModelPayload(request, "TARJETA_CREDITO");
-        
+        Map<String, Object> payload = mapper.toModelPayload(request, "TARJETA_CREDITO", 0.0);
+
         // Assert that the map was created without throwing
         assertNotNull(payload);
         // and DTI is calculated as 0
