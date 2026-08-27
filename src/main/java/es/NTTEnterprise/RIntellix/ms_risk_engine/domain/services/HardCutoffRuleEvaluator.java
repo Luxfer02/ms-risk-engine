@@ -101,8 +101,6 @@ public class HardCutoffRuleEvaluator {
         return Optional.empty();
     }
 
-    // TODO: Averiguar si con hardcutoff nos interesa saber el lgc, ead y ecl.
-
     /**
      * Auxiliar method that builds a HardCutoffRejection object.
      * 

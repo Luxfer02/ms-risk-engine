@@ -12,6 +12,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.enums.RiskGrade;
 /**
  * Unit tests for {@link RiskGradeCalculator}.
  * Covers all 7 risk grade branches (A-G) plus boundary values.
+ * @date 27/08/2026
  */
 @DisplayName("RiskGradeCalculator Tests")
 class RiskGradeCalculatorTest {

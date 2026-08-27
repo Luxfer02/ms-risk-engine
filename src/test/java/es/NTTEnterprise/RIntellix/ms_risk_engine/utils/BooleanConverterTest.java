@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link BooleanConverter}.
  * Covers true/false/null conversion to model-expected "Si"/"No" format.
+ * @date 27/08/2026
  */
 @DisplayName("BooleanConverter Tests")
 class BooleanConverterTest {

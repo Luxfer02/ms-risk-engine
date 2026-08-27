@@ -17,6 +17,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadFieldNames;
 /**
  * Unit tests for {@link HardCutoffRuleEvaluator}.
  * Covers DTI/LTV/LTI rules, priority order, request type filtering, and edge cases.
+ * @date 27/08/2026
  */
 @DisplayName("HardCutoffRuleEvaluator Tests")
 class HardCutoffRuleEvaluatorTest {

@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.FinancialMetrics;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.FinancialMetricsStrategy;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.FinancialMetricsStrategyFactory;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.FinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.FinancialMetricsStrategyFactory;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * a complete FinancialMetrics value object.
  *
  * @author Lucía Fernández Mancebo
+ * @date 27/08/2026
  */
 @Slf4j
 public class FinancialMetricsCalculationService {

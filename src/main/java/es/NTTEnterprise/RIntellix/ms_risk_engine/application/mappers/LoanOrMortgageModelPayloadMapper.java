@@ -4,15 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
-
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.dtos.input.ScoringGenerationRequest;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.DtiCalculationService;
+
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadConstants;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadFieldNames;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadUtilities;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.SimulationConstants;
 
 /**
  * Mapper for transforming loan and mortgage scoring requests into
@@ -27,23 +24,20 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.SimulationConstants;
 public class LoanOrMortgageModelPayloadMapper {
 
         private final ModelPayloadUtilities payloadUtilities;
-        private final DtiCalculationService dtiCalculationService;
 
-        public LoanOrMortgageModelPayloadMapper(final ModelPayloadUtilities payloadUtilities,
-                        final DtiCalculationService dtiCalculationService) {
+        public LoanOrMortgageModelPayloadMapper(final ModelPayloadUtilities payloadUtilities) {
                 this.payloadUtilities = Objects.requireNonNull(payloadUtilities,
                                 LogMessage.MODEL_PAYLOAD_UTILITIES_CANNOT_BE_NULL);
-                this.dtiCalculationService = Objects.requireNonNull(dtiCalculationService,
-                                LogMessage.DTI_CALCULATION_SERVICE_CANNOT_BE_NULL);
         }
 
         /**
          * Maps loan or mortgage generation request to model payload.
          *
-         * @param request the source scoring generation request.
+         * @param request       the source scoring generation request.
+         * @param calculatedDti the pre-calculated DTI value.
          * @return the model payload with English field names and normalized values.
          */
-        public Map<String, Object> toModelPayload(final ScoringGenerationRequest request) {
+        public Map<String, Object> toModelPayload(final ScoringGenerationRequest request, final double calculatedDti) {
                 final Map<String, Object> modelPayload = new LinkedHashMap<>();
                 final String loanType = request.getLoanType();
                 modelPayload.put(ModelPayloadFieldNames.FIELD_AGE, request.getAge());
@@ -86,28 +80,11 @@ public class LoanOrMortgageModelPayloadMapper {
                 modelPayload.put(ModelPayloadFieldNames.FIELD_LTV,
                                 Objects.requireNonNullElse(request.getLtv(), ModelPayloadConstants.DEFAULT_LTV));
                 modelPayload.put(ModelPayloadFieldNames.FIELD_EXISTING_OBLIGATIONS, request.getExistingObligations());
-                modelPayload.put(ModelPayloadFieldNames.FIELD_DTI, calculateModelDti(request));
+                modelPayload.put(ModelPayloadFieldNames.FIELD_DTI, calculatedDti);
                 modelPayload.put(ModelPayloadFieldNames.FIELD_PREVIOUS_LOANS_COUNT, request.getPreviousLoansCount());
                 modelPayload.put(ModelPayloadFieldNames.FIELD_PREVIOUS_DEFAULTS_COUNT,
                                 request.getPreviousDefaultsCount());
                 return modelPayload;
-        }
-
-        private double calculateModelDti(final ScoringGenerationRequest request) {
-                if (request == null) {
-                        return SimulationConstants.ZERO_VALUE;
-                }
-
-                final double annualIncome = SimulationConstants.getSafe(request.getAnnualIncome());
-                final double existingObligations = SimulationConstants.getSafe(request.getExistingObligations());
-                final double loanAmount = SimulationConstants.getSafe(request.getLoanAmount());
-                final double interestRate = SimulationConstants.getSafe(request.getInterestRate());
-                return dtiCalculationService.calculateModelDtiForScoring(
-                                annualIncome,
-                                existingObligations,
-                                loanAmount,
-                                interestRate,
-                                request.getTermMonths());
         }
 
 }

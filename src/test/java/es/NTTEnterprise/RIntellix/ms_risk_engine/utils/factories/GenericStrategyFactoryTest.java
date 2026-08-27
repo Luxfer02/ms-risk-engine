@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link GenericStrategyFactory}.
  * Covers strategy selection, no-match exception, and multiple-match priority.
+ * @date 27/08/2026
  */
 @DisplayName("GenericStrategyFactory Tests")
 class GenericStrategyFactoryTest {

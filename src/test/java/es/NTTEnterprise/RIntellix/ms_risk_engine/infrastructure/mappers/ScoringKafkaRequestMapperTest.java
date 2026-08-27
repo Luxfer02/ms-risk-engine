@@ -13,6 +13,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
 /**
  * Unit tests for {@link ScoringKafkaRequestMapper}.
  * Covers generic payload to DTO mapping and request type extraction.
+ * @date 27/08/2026
  */
 @DisplayName("ScoringKafkaRequestMapper Tests")
 class ScoringKafkaRequestMapperTest {
