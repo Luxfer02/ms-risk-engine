@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link SimulationConstants}.
  * Covers getSafe utility method and non-instantiability.
+ * @date 27/08/2026
  */
 @DisplayName("SimulationConstants Tests")
 class SimulationConstantsTest {

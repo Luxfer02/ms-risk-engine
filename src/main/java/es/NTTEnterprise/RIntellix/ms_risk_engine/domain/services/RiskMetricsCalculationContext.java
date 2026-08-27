@@ -37,7 +37,14 @@ public record RiskMetricsCalculationContext(
         Map<String, Object> modelPayload,
         String requestId,
         String modelEndpointPath,
-        String requestType) {
+        String requestType,
+        Boolean isRevolving,
+        Double principalAmount,
+        Double ltv,
+        Double annualIncome,
+        Integer termMonths,
+        Double interestRate,
+        Double existingMonthlyObligations) {
     public RiskMetricsCalculationContext {
         Objects.requireNonNull(modelPayload, LogMessage.MODEL_PAYLOAD_NULL);
         Objects.requireNonNull(requestId, LogMessage.REQUEST_ID_NULL_ERROR);

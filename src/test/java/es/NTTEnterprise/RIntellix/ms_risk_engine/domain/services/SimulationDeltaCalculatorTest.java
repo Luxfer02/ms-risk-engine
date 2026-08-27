@@ -2,8 +2,7 @@ package es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +16,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.simulation.Simu
 /**
  * Unit tests for {@link SimulationDeltaCalculator}.
  * Uses black-box and white-box testing strategies, edge conditions, outliers and branches.
+ * @date 27/08/2026
  */
 @DisplayName("SimulationDeltaCalculator Tests")
 class SimulationDeltaCalculatorTest {
@@ -65,10 +65,7 @@ class SimulationDeltaCalculatorTest {
         simFinMetrics.setMonthlyDisposableIncome(1900.0);
         simMetrics.setFinancialMetrics(simFinMetrics);
 
-        Map<String, Object> baseVariables = new HashMap<>();
-        Map<String, Object> mergedVariables = new HashMap<>();
-
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, baseVariables, mergedVariables);
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         assertEquals(0.03, delta.getPdChange(), 0.001); 
         assertEquals(50.0, delta.getEclChange(), 0.001); 
@@ -103,7 +100,7 @@ class SimulationDeltaCalculatorTest {
         simFinMetrics.setMonthlyDisposableIncome(1000.0);
         simMetrics.setFinancialMetrics(simFinMetrics);
 
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, new HashMap<>(), new HashMap<>());
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         assertEquals(400.0, delta.getMonthlyPaymentChange(), 0.001);
         assertEquals(0.20, delta.getDtiChange(), 0.001);
@@ -129,7 +126,7 @@ class SimulationDeltaCalculatorTest {
 
         RiskMetrics simMetrics = new RiskMetrics();
 
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, new HashMap<>(), new HashMap<>());
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         assertEquals(-300.0, delta.getMonthlyPaymentChange(), 0.001);
         assertEquals(-0.30, delta.getDtiChange(), 0.001);
@@ -153,7 +150,7 @@ class SimulationDeltaCalculatorTest {
         simFinMetrics.setMonthlyPayment(2_000_000_000.0);
         simMetrics.setFinancialMetrics(simFinMetrics);
 
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, new HashMap<>(), new HashMap<>());
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         assertEquals(1_000_000_000.0, delta.getMonthlyPaymentChange(), 0.001);
     }
@@ -173,7 +170,7 @@ class SimulationDeltaCalculatorTest {
         simFinMetrics.setMonthlyPayment(Double.NaN);
         simMetrics.setFinancialMetrics(simFinMetrics);
 
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, new HashMap<>(), new HashMap<>());
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         // MathUtilities.calculateDelta handles NaN by returning NaN
         assertEquals(Double.NaN, delta.getMonthlyPaymentChange());
@@ -194,7 +191,7 @@ class SimulationDeltaCalculatorTest {
         simFinMetrics.setMonthlyPayment(300.0);
         simMetrics.setFinancialMetrics(simFinMetrics);
 
-        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics, new HashMap<>(), new HashMap<>());
+        SimulationDelta delta = calculator.calculateDelta(baseScoring, simMetrics);
 
         assertEquals(0.0, delta.getMonthlyPaymentChange(), 0.001);
     }

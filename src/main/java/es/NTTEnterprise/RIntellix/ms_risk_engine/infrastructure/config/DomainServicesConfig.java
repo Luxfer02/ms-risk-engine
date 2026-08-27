@@ -12,7 +12,11 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskGradeCalcul
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskIndicatorCalculationService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.SimulationDeltaCalculator;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.HardCutoffRuleEvaluator;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.FinancialMetricsStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.indicators.RiskIndicatorCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.indicators.LoanRiskIndicatorStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.indicators.MortgageRiskIndicatorStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.indicators.CreditCardRiskIndicatorStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.financial_metrics.FinancialMetricsStrategy;
 
 /**
  * Configuration class to wire domain services without Spring stereotypes
@@ -46,6 +50,21 @@ public class DomainServicesConfig {
         return new DtiCalculationService();
     }
 
+    @Bean
+    public LoanRiskIndicatorStrategy loanRiskIndicatorStrategy(final DtiCalculationService dtiCalculationService) {
+        return new LoanRiskIndicatorStrategy(dtiCalculationService);
+    }
+
+    @Bean
+    public MortgageRiskIndicatorStrategy mortgageRiskIndicatorStrategy(final DtiCalculationService dtiCalculationService) {
+        return new MortgageRiskIndicatorStrategy(dtiCalculationService);
+    }
+
+    @Bean
+    public CreditCardRiskIndicatorStrategy creditCardRiskIndicatorStrategy(final DtiCalculationService dtiCalculationService) {
+        return new CreditCardRiskIndicatorStrategy(dtiCalculationService);
+    }
+
     /**
      * Creates a RiskIndicatorCalculationService bean.
      *
@@ -53,8 +72,8 @@ public class DomainServicesConfig {
      */
     @Bean
     public RiskIndicatorCalculationService riskIndicatorCalculationService(
-            final DtiCalculationService dtiCalculationService) {
-        return new RiskIndicatorCalculationService(dtiCalculationService);
+            final List<RiskIndicatorCalculationStrategy> calculationStrategies) {
+        return new RiskIndicatorCalculationService(calculationStrategies);
     }
 
     /**

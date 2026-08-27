@@ -12,15 +12,13 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.HardCuto
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.ports.output.ModelPredictionPort;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.FinancialMetricsCalculationService;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.HardCutoffRuleEvaluator;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RiskCalculationStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskGradeCalculator;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskMetricsCalculationContext;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskMetricsCalculationResult;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RiskCalculationStrategyFactory;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RiskCalculationStrategyFactory;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.LogMessage;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadFieldNames;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Map;
 
 /**
  * Core service for calculating risk metrics.
@@ -109,8 +107,6 @@ public class RiskMetricsCalculationService {
         public RiskMetricsCalculationResult calculateRiskMetrics(final RiskMetricsCalculationContext context) {
                 Objects.requireNonNull(context, LogMessage.RISK_METRICS_CONTEXT_CANNOT_BE_NULL);
 
-                Map<String, Object> modelPayload = context.modelPayload();
-
                 log.info(LogMessage.RISK_METRICS_CALCULATION_STARTED, context.requestId());
 
                 final Optional<HardCutoffRejection> rejectionOpt = hardCutoffRuleEvaluator.evaluateRules(
@@ -140,23 +136,15 @@ public class RiskMetricsCalculationService {
                         log.debug(LogMessage.ASYNCHRONOUS_MODEL_INVOCATION, context.requestId());
                 }
 
-                Double amount = (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_LOAN_AMOUNT);
-                if (amount == null) {
-                        amount = (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_CREDIT_LIMIT);
-                }
-
-                Boolean isRevolving = ("Si")
-                                .equals((String) modelPayload.get(ModelPayloadFieldNames.FIELD_IS_REVOLVING));
-
                 // Step 2: While model processes, pre-compute EAD/LGD in parallel
                 final RiskCalculationStrategy riskStrategy = RiskCalculationStrategyFactory.createStrategy(
                                 context.requestType(),
-                                isRevolving,
+                                context.isRevolving(),
                                 riskCalculationStrategies);
 
                 final RiskMetrics prePdMetrics = riskStrategy.calculatePrePdMetrics(
-                                amount,
-                                (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_LTV));
+                                context.principalAmount(),
+                                context.ltv());
 
                 log.debug(LogMessage.PRE_PD_METRICS_COMPUTED,
                                 context.requestId(),
@@ -170,16 +158,13 @@ public class RiskMetricsCalculationService {
                                 prediction.getProbabilityOfDefault());
 
                 // Step 4: Assemble full metrics combining PD with pre-computed EAD/LGD
-                Number termMonthsNum = (Number) modelPayload.get(ModelPayloadFieldNames.FIELD_TERM_MONTHS);
-                Integer termMonths = termMonthsNum != null ? termMonthsNum.intValue() : null;
-
                 final RiskMetrics fullMetrics = riskStrategy.assembleFullMetricsWithGradeCalculator(
                                 prediction.getProbabilityOfDefault(),
                                 prePdMetrics,
-                                amount,
-                                (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_ANNUAL_INCOME),
-                                termMonths,
-                                (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_INTEREST_RATE),
+                                context.principalAmount(),
+                                context.annualIncome(),
+                                context.termMonths(),
+                                context.interestRate(),
                                 riskGradeCalculator);
 
                 log.info(LogMessage.FULL_METRICS_ASSEMBLED,
@@ -191,21 +176,14 @@ public class RiskMetricsCalculationService {
                                 fullMetrics.getRiskLevel());
 
                 // Step 5: Calculate and attach financial metrics
-                Double existingObligations = (Double) modelPayload
-                                .get(ModelPayloadFieldNames.FIELD_EXISTING_OBLIGATIONS);
-                double existingMonthly = existingObligations != null ? existingObligations / 12.0 : 0.0;
-
-                Double rawRate = (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_INTEREST_RATE);
-                double simRate = rawRate != null ? rawRate : 0.0;
-
                 final FinancialMetrics financialMetrics = financialMetricsCalculationService.calculateFinancialMetrics(
                                 context.requestType(),
-                                isRevolving,
-                                amount,
-                                simRate,
-                                termMonths,
-                                (Double) modelPayload.get(ModelPayloadFieldNames.FIELD_ANNUAL_INCOME),
-                                existingMonthly);
+                                context.isRevolving(),
+                                context.principalAmount(),
+                                context.interestRate() != null ? context.interestRate() : 0.0,
+                                context.termMonths(),
+                                context.annualIncome(),
+                                context.existingMonthlyObligations());
 
                 fullMetrics.setFinancialMetrics(financialMetrics);
                 log.debug(LogMessage.FINANCIAL_METRICS_ATTACHED,

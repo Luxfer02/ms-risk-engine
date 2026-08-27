@@ -9,6 +9,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.SimulationConstants;
  * Utility class for calculating credit card specific financial metrics.
  *
  * @author Lucía Fernández Mancebo
+ * @date 27/08/2026
  */
 @Slf4j
 public final class CreditCardFinancialMetricsCalculator {

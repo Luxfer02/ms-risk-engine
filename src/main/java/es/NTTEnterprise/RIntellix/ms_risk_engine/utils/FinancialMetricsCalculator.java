@@ -85,4 +85,18 @@ public final class FinancialMetricsCalculator {
     public static double calculateDisposableIncome(final double annualIncome, final double monthlyPayment) {
         return MathUtilities.roundFinal((annualIncome / SimulationConstants.MONTHS_PER_YEAR) - monthlyPayment);
     }
+
+    /**
+     * Calculates Loan-to-Value (LTV) ratio as a decimal (0-1 range).
+     *
+     * @param loanAmount    the requested loan amount.
+     * @param propertyValue the appraised property value.
+     * @return LTV as decimal.
+     */
+    public static double calculateLtv(final double loanAmount, final double propertyValue) {
+        if (propertyValue <= SimulationConstants.ZERO_VALUE) {
+            return SimulationConstants.ZERO_VALUE;
+        }
+        return MathUtilities.roundFinal(loanAmount / propertyValue);
+    }
 }

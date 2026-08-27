@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link FinancialMetricsCalculator}.
  * Covers monthly payment, DTI, total payment, total interest, and disposable income.
+ * @date 27/08/2026
  */
 @DisplayName("FinancialMetricsCalculator Tests")
 class FinancialMetricsCalculatorTest {

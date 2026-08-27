@@ -2,16 +2,16 @@ package es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.constants.RiskCalculationDefaults;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.SimulationConstants;
 
 /**
  * Unit tests for {@link CreditCardFinancialMetricsCalculator}.
- * Covers standard/revolving payments, DTI, disposable income, and revolving payoff simulation.
+ * Covers standard/revolving payments, DTI, disposable income, and revolving
+ * payoff simulation.
+ * @date 27/08/2026
  */
 @DisplayName("CreditCardFinancialMetricsCalculator Tests")
 class CreditCardFinancialMetricsCalculatorTest {

@@ -27,13 +27,14 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.HardCutoffRuleE
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskGradeCalculator;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskMetricsCalculationContext;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.services.RiskMetricsCalculationResult;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.RiskCalculationStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.strategies.risk_calculation.RiskCalculationStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.utils.ModelPayloadFieldNames;
 
 /**
  * Unit tests for {@link RiskMetricsCalculationService}.
  * Covers normal model invocation flow, hard-cutoff bypass, parallel computation,
  * null payload fields, financial metrics attachment, and constructor null guards.
+ * @date 27/08/2026
  */
 @DisplayName("RiskMetricsCalculationService Tests")
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +75,7 @@ class RiskMetricsCalculationServiceTest {
     void calculateRiskMetrics_normalFlow_invokesModelAndAssemblesMetrics() {
         Map<String, Object> payload = buildLoanPayload(20000.0, 5.0, 36, 50000.0, null);
         RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
-                payload, "REQ-1", "/api/v1/risk/predict-loan", "PRESTAMO");
+                payload, "REQ-1", "/api/v1/risk/predict-loan", "PRESTAMO", false, 20000.0, null, 50000.0, 36, 5.0, 0.0);
 
         // No hard-cutoff
         when(hardCutoffRuleEvaluator.evaluateRules(payload, "PRESTAMO", "REQ-1"))
@@ -129,7 +130,7 @@ class RiskMetricsCalculationServiceTest {
         Map<String, Object> payload = buildLoanPayload(20000.0, 5.0, 36, 50000.0, null);
         payload.put(ModelPayloadFieldNames.FIELD_DTI, 0.60); // Exceeds threshold
         RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
-                payload, "REQ-2", "/api/v1/risk/predict-loan", "PRESTAMO");
+                payload, "REQ-2", "/api/v1/risk/predict-loan", "PRESTAMO", false, 20000.0, null, 50000.0, 36, 5.0, 0.0);
 
         // Hard-cutoff triggered
         HardCutoffRejection rejection = new HardCutoffRejection("dti", 0.60, List.of());
@@ -176,7 +177,7 @@ class RiskMetricsCalculationServiceTest {
         payload.put(ModelPayloadFieldNames.FIELD_INTEREST_RATE, 20.0);
 
         RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
-                payload, "REQ-3", "/api/v1/risk/predict-credit-card", "TARJETA_CREDITO");
+                payload, "REQ-3", "/api/v1/risk/predict-credit-card", "TARJETA_CREDITO", true, 5000.0, null, 40000.0, null, 20.0, 0.0);
 
         when(hardCutoffRuleEvaluator.evaluateRules(any(), any(), any()))
                 .thenReturn(Optional.empty());
@@ -212,7 +213,7 @@ class RiskMetricsCalculationServiceTest {
     void calculateRiskMetrics_withExistingObligations_dividesBy12() {
         Map<String, Object> payload = buildLoanPayload(10000.0, 3.0, 24, 60000.0, 6000.0);
         RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
-                payload, "REQ-4", "/api/v1/risk/predict-loan", "PRESTAMO");
+                payload, "REQ-4", "/api/v1/risk/predict-loan", "PRESTAMO", false, 10000.0, null, 60000.0, 24, 3.0, 500.0);
 
         when(hardCutoffRuleEvaluator.evaluateRules(any(), any(), any()))
                 .thenReturn(Optional.empty());
@@ -257,7 +258,7 @@ class RiskMetricsCalculationServiceTest {
         payload.put(ModelPayloadFieldNames.FIELD_TERM_MONTHS, 36.0);
 
         RiskMetricsCalculationContext context = new RiskMetricsCalculationContext(
-                payload, "REQ-5", "/api/v1/risk/predict-loan", "PRESTAMO");
+                payload, "REQ-5", "/api/v1/risk/predict-loan", "PRESTAMO", false, 15000.0, null, 45000.0, 36, null, 0.0);
 
         when(hardCutoffRuleEvaluator.evaluateRules(any(), any(), any()))
                 .thenReturn(Optional.empty());

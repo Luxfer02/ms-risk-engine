@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.dtos.input.ScoringGenerationPayload;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.dtos.output.ScoringModelExecutionResultDTO;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.application.mappers.ScoringResultMapper;
-import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.ScoringModelExecutionStrategy;
+import es.NTTEnterprise.RIntellix.ms_risk_engine.application.strategies.model_execution.ScoringModelExecutionStrategy;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.ModelPredictionResult;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.RiskMetrics;
 import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.entities.common.Scoring;
@@ -28,6 +28,7 @@ import es.NTTEnterprise.RIntellix.ms_risk_engine.domain.ports.output.ScoringResu
  * Unit tests for {@link ScoringProcessingService}.
  * Covers null payload guard, normal scoring flow, hard-cutoff model version override,
  * strategy delegation, Kafka publishing, and exception handling.
+ * @date 27/08/2026
  */
 @DisplayName("ScoringProcessingService Tests")
 @ExtendWith(MockitoExtension.class)

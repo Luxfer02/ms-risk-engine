@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link MathUtilities}.
  * Covers rounding, delta calculation, NaN/Infinity handling, and non-instantiability.
+ * @date 27/08/2026
  */
 @DisplayName("MathUtilities Tests")
 class MathUtilitiesTest {
